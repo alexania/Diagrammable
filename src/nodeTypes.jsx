@@ -122,7 +122,7 @@ export function DiamondNode({ data, selected }) {
     }}>
       <NodeResizer minWidth={80} minHeight={80} isVisible={selected} color="#4a9eff" />
       {handles}
-      <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', overflow: 'visible' }}>
+      <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', overflow: 'visible', pointerEvents: 'none' }}>
         <polygon
           points="50%,4 97%,50% 50%,96% 3%,50%"
           fill={data.bg || '#2a2a1a'}
@@ -137,6 +137,8 @@ export function DiamondNode({ data, selected }) {
 }
 
 export function CylinderNode({ data, selected }) {
+  const fill = data.bg || '#2a1a3a'
+  const stroke = selected ? '#4a9eff' : (data.border || '#5a3a7a')
   return (
     <div style={{
       ...baseStyle,
@@ -147,32 +149,35 @@ export function CylinderNode({ data, selected }) {
     }}>
       <NodeResizer minWidth={80} minHeight={60} isVisible={selected} color="#4a9eff" />
       {handles}
-      <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
-        <rect
-          x="2" y="14"
-          width="calc(100% - 4px)"
-          height="calc(100% - 28px)"
-          fill={data.bg || '#2a1a3a'}
-          stroke={selected ? '#4a9eff' : (data.border || '#5a3a7a')}
-          strokeWidth={2}
-          style={{ width: 'calc(100% - 4px)', height: 'calc(100% - 28px)' }}
-        />
-        <ellipse
-          cx="50%" cy="14"
-          rx="calc(50% - 2px)"
-          ry="12"
-          fill={data.bg || '#2a1a3a'}
-          stroke={selected ? '#4a9eff' : (data.border || '#5a3a7a')}
-          strokeWidth={2}
-        />
+      {/* pointerEvents:none so the label underneath stays clickable */}
+      <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
+        {/* Draw bottom ellipse first so the rect body covers its top half */}
         <ellipse
           cx="50%" cy="calc(100% - 14px)"
           rx="calc(50% - 2px)"
           ry="12"
-          fill={data.bg || '#2a1a3a'}
-          stroke={selected ? '#4a9eff' : (data.border || '#5a3a7a')}
+          fill={fill}
+          stroke={stroke}
           strokeWidth={2}
-          strokeDasharray="none"
+        />
+        {/* Rect body covers the lower part of the bottom ellipse */}
+        <rect
+          x="2" y="14"
+          width="calc(100% - 4px)"
+          height="calc(100% - 28px)"
+          fill={fill}
+          stroke={stroke}
+          strokeWidth={2}
+          style={{ width: 'calc(100% - 4px)', height: 'calc(100% - 28px)' }}
+        />
+        {/* Top ellipse drawn last — appears as the prominent cap */}
+        <ellipse
+          cx="50%" cy="14"
+          rx="calc(50% - 2px)"
+          ry="12"
+          fill={fill}
+          stroke={stroke}
+          strokeWidth={2}
         />
       </svg>
       <EditableLabel label={data.label} onChange={data.onLabelChange} />
