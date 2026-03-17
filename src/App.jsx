@@ -11,6 +11,7 @@ import ReactFlow, {
 } from 'reactflow'
 import 'reactflow/dist/style.css'
 import { nodeTypes } from './nodeTypes.jsx'
+import { edgeTypes } from './edges.jsx'
 import Toolbar from './Toolbar.jsx'
 import { exportToSvg } from './exportSvg.js'
 
@@ -46,8 +47,8 @@ const DEFAULT_NODES = [
 nodeId = 4
 
 const DEFAULT_EDGES = [
-  { id: 'e1-2', source: 'n1', target: 'n2', label: 'auth request' },
-  { id: 'e2-3', source: 'n2', target: 'n3', label: 'query' },
+  { id: 'e1-2', source: 'n1', target: 'n2', label: 'auth request', type: 'waypoint' },
+  { id: 'e2-3', source: 'n2', target: 'n3', label: 'query', type: 'waypoint' },
 ]
 
 function DiagramEditor() {
@@ -80,7 +81,7 @@ function DiagramEditor() {
     []
   )
   const onConnect = useCallback(
-    (params) => setEdges(es => addEdge({ ...params, style: { stroke: '#888' } }, es)),
+    (params) => setEdges(es => addEdge({ ...params, type: 'waypoint', style: { stroke: '#888' } }, es)),
     []
   )
 
@@ -126,9 +127,10 @@ function DiagramEditor() {
   }, [])
 
   const onKeyDown = useCallback((e) => {
-    if ((e.key === 'Delete' || e.key === 'Backspace') && e.target === document.body) {
-      onDeleteSelected()
-    }
+    if (e.key !== 'Delete' && e.key !== 'Backspace') return
+    const tag = e.target.tagName
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return
+    onDeleteSelected()
   }, [onDeleteSelected])
 
   React.useEffect(() => {
@@ -193,10 +195,11 @@ function DiagramEditor() {
           onEdgeClick={onEdgeClick}
           onPaneClick={onPaneClick}
           nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
           fitView
           deleteKeyCode={null}
           style={{ background: '#0f0f0f' }}
-          defaultEdgeOptions={{ style: { stroke: '#888', strokeWidth: 1.5 }, labelStyle: { fill: '#bbb', fontSize: 11 }, labelBgStyle: { fill: '#1a1a1a' } }}
+          defaultEdgeOptions={{ type: 'waypoint', style: { stroke: '#888', strokeWidth: 1.5 }, labelStyle: { fill: '#bbb', fontSize: 11 }, labelBgStyle: { fill: '#1a1a1a' } }}
         >
           <Background color="#222" gap={24} size={1} />
           <Controls style={{ background: '#1a1a1a', borderColor: '#333', color: '#888' }} />
@@ -215,7 +218,7 @@ function DiagramEditor() {
           color: '#444',
           pointerEvents: 'none',
         }}>
-          Drag to connect · Double-click label to edit · Select edge to label it
+          Drag to connect · Double-click label to edit · Double-click edge to add anchor · Double-click anchor to remove
         </div>
       </div>
     </div>
